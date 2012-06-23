@@ -1,4 +1,5 @@
 /.bundle
 /config/*
+!/config/example.php
 /vendor/bundle
 /tmp
