@@ -28,6 +28,8 @@ class GyazoApp extends Phat_Application
         $record = $this->getRecordByHash($hash);
         if ($record) {
             $this->response->write("<html><head><title>{$record['hash']}.png</title></head><body><img src=\"/{$record['hash']}.png\" alt=\"Picture\" /></body></html>");
+        } else {
+            $this->halt(404, 'Picture not found.');
         }
     }
 
