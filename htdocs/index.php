@@ -35,15 +35,15 @@ class GyazoApp extends Phat_Application
 
     public function upload()
     {
-        $file = $_FILES['imagedata']['tmp_name'];
-        $body = file_get_contents($file);
-        $hash = md5($body);
+        $tmpfile = $_FILES['imagedata']['tmp_name'];
+        $file = fopen($tmpfile, 'r');
+        $hash = md5_file($tmpfile);
         $stmt = $this['db']->prepare(
             'INSERT INTO pictures (`hash`, `body`, `created_at`, `updated_at`) ' .
             'VALUES (?, ?, NOW(), NOW())'
         );
         $stmt->bindParam(1, $hash, PDO::PARAM_STR, self::MD5_LENGTH);
-        $stmt->bindParam(2, $body, PDO::PARAM_LOB);
+        $stmt->bindParam(2, $file, PDO::PARAM_LOB);
         if ($stmt->execute()) {
             $this->response->write($this->getImageUrl($hash));
         } else {
