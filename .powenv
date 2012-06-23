@@ -1,3 +1,2 @@
 export PATH=$HOME/.phpenv/bin:$PATH
 eval "$(phpenv init -)"
-export SLIM_MODE="development"
