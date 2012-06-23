@@ -87,12 +87,14 @@ class GyazoApp extends Phat_Application
         $tmpfile = $_FILES['imagedata']['tmp_name'];
         $file = fopen($tmpfile, 'r');
         $hash = md5_file($tmpfile);
+        $userId = $this->request()->post('id');
         $stmt = $this['db']->prepare(
-            'INSERT INTO pictures (`hash`, `body`, `created_at`, `updated_at`) ' .
-            'VALUES (?, ?, NOW(), NOW())'
+            'INSERT INTO pictures (`hash`, `user_id`, `body`, `created_at`, `updated_at`) ' .
+            'VALUES (?, ?, ?, NOW(), NOW())'
         );
         $stmt->bindParam(1, $hash, PDO::PARAM_STR, self::MD5_LENGTH);
-        $stmt->bindParam(2, $file, PDO::PARAM_LOB);
+        $stmt->bindParam(2, $userId, PDO::PARAM_STR, strlen($userId));
+        $stmt->bindParam(3, $file, PDO::PARAM_LOB);
         if ($stmt->execute()) {
             $this->response->write($this->getImageUrl($hash));
         } else {
