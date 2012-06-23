@@ -32,6 +32,8 @@ class GyazoApp extends Phat_Application
         $configFile = $this->getConfigFile();
         if ($configFile) {
             $this->config(require $configFile);
+        } else {
+            throw new RuntimeException("Config file for {$this->getMode()} mode is not found");
         }
         $this['db'] = new PDO(
             "mysql:dbname={$this->config('db.database')};host={$this->config('db.host')}",
