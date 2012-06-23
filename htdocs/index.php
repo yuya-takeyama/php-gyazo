@@ -12,6 +12,53 @@ class GyazoApp extends Phat_Application
 {
     const MD5_LENGTH = 32;
 
+    /**
+     * Project root directory
+     *
+     * @var string
+     */
+    private $rootDir;
+
+    public function __construct(array $settings = array())
+    {
+        parent::__construct($settings);
+        $this->configure();
+    }
+
+    public function configure()
+    {
+        $this->configureMode('production', array($this, 'configureProduction'));
+        $this->configureMode('development', array($this, 'configureDevelopment'));
+        $configFile = $this->getConfigFile();
+        if ($configFile) {
+            $this->config(require $configFile);
+        }
+        $this['db'] = new PDO(
+            "mysql:dbname={$this->config('db.database')};host={$this->config('db.host')}",
+            $this->config('db.user'),
+            $this->config('db.password'),
+            array(
+                PDO::MYSQL_ATTR_DIRECT_QUERY => true,
+            )
+        );
+    }
+
+    public function configureProduction()
+    {
+        $this->config(array(
+            'log.enable' => true,
+            'debug'      => false,
+        ));
+    }
+
+    public function configureDevelopment()
+    {
+        $this->config(array(
+            'log.enable' => false,
+            'debug'      => true,
+        ));
+    }
+
     public function picture($hash)
     {
         $record = $this->getRecordByHash($hash);
@@ -51,6 +98,19 @@ class GyazoApp extends Phat_Application
         }
     }
 
+    private function getRootDir()
+    {
+        return isset($this->rootDir) ?
+            $this->rootDir :
+            $this->rootDir = realpath(dirname(__FILE__) . '/..');
+    }
+
+    public function getConfigFile()
+    {
+        $configFile = "{$this->getRootDir()}/config/{$this->getMode()}.php";
+        return file_exists($configFile) ? $configFile : NULL;
+    }
+
     private function getRecordByHash($hash)
     {
         $stmt = $this['db']->prepare(
@@ -71,9 +131,6 @@ class GyazoApp extends Phat_Application
 }
 
 $app = new GyazoApp;
-$app['db'] = new PDO('mysql:dbname=php_gyazo_dev;host=localhost', 'gyazo', 'gyazo', array(
-    PDO::MYSQL_ATTR_DIRECT_QUERY => true,
-));
 
 $app->get('/:hash.png', array($app, 'picture'));
 $app->get('/:hash', array($app, 'picturePage'));
