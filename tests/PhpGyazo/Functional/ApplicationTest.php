@@ -50,13 +50,6 @@ class PhpGyazo_Tests_Functional_ApplicationTest extends Sumile_WebTestCase
 
     public function createApplication()
     {
-        $app = new PhpGyazo_Application;
-
-        $app['db.host']     = 'localhost';
-        $app['db.user']     = 'root';
-        $app['db.password'] = '';
-        $app['db.database'] = 'php_gyazo_test';
-
-        return $app;
+        return new PhpGyazo_Application;
     }
 }
