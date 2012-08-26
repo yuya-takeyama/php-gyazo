@@ -3,4 +3,5 @@
 /config/*
 !/config/example.php
 /vendor
+/venom.php
 /tmp
