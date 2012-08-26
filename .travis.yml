@@ -1,0 +1,13 @@
+language: php
+
+php:
+  - 5.2
+  - 5.3
+  - 5.4
+
+before_script:
+  - ./bin/install.sh
+  -  mysql -e 'create database php_gyazo_test;'
+  - mysql < sql/pictures.sql
+
+script: phpunit --coverage-text
