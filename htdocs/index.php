@@ -2,142 +2,18 @@
 set_include_path(
     realpath(dirname(__FILE__) . '/../src') .
     PATH_SEPARATOR .
-    realpath(dirname(__FILE__) . '/../vendor/slim') .
+    realpath(dirname(__FILE__) . '/../vendor/codeguy/Slim') .
+    PATH_SEPARATOR .
+    realpath(dirname(__FILE__) . '/../vendor/yuya-takeyama/acne/src') .
+    PATH_SEPARATOR .
+    realpath(dirname(__FILE__) . '/../vendor/yuya-takeyama/edps/src') .
+    PATH_SEPARATOR .
+    realpath(dirname(__FILE__) . '/../vendor/yuya-takeyama/sumile/src') .
     PATH_SEPARATOR .
     get_include_path()
 );
-require_once 'Phat/Application.php';
 
-class GyazoApp extends Phat_Application
-{
-    const MD5_LENGTH = 32;
+require_once 'PhpGyazo/Application.php';
 
-    /**
-     * Project root directory
-     *
-     * @var string
-     */
-    private $rootDir;
-
-    public function __construct(array $settings = array())
-    {
-        parent::__construct($settings);
-        $this->configure();
-    }
-
-    public function configure()
-    {
-        $this->configureMode('production', array($this, 'configureProduction'));
-        $this->configureMode('development', array($this, 'configureDevelopment'));
-        $configFile = $this->getConfigFile();
-        if ($configFile) {
-            $this->config(require $configFile);
-        } else {
-            throw new RuntimeException("Config file for {$this->getMode()} mode is not found");
-        }
-        $this['db'] = new PDO(
-            "mysql:dbname={$this->config('db.database')};host={$this->config('db.host')}",
-            $this->config('db.user'),
-            $this->config('db.password'),
-            array(
-                PDO::MYSQL_ATTR_DIRECT_QUERY => true,
-            )
-        );
-    }
-
-    public function configureProduction()
-    {
-        $this->config(array(
-            'log.enable' => true,
-            'debug'      => false,
-        ));
-    }
-
-    public function configureDevelopment()
-    {
-        $this->config(array(
-            'log.enable' => false,
-            'debug'      => true,
-        ));
-    }
-
-    public function picture($hash)
-    {
-        $record = $this->getRecordByHash($hash);
-        if ($record) {
-            $this->response['Content-type'] = 'image/png';
-            $this->response->write($record['body']);
-        } else {
-            $this->halt(404, 'Picture not found.');
-        }
-    }
-
-    public function picturePage($hash)
-    {
-        $record = $this->getRecordByHash($hash);
-        if ($record) {
-            $this->response->write("<html><head><title>{$record['hash']}.png</title></head><body><img src=\"/{$record['hash']}.png\" alt=\"Picture\" /></body></html>");
-        } else {
-            $this->halt(404, 'Picture not found.');
-        }
-    }
-
-    public function upload()
-    {
-        $tmpfile = $_FILES['imagedata']['tmp_name'];
-        $file = fopen($tmpfile, 'r');
-        $hash = md5_file($tmpfile);
-        $userId = $this->request()->post('id');
-        $stmt = $this['db']->prepare(
-            'INSERT INTO pictures (`hash`, `user_id`, `body`, `created_at`, `updated_at`) ' .
-            'VALUES (?, ?, ?, NOW(), NOW())'
-        );
-        $stmt->bindParam(1, $hash, PDO::PARAM_STR, self::MD5_LENGTH);
-        $stmt->bindParam(2, $userId, PDO::PARAM_STR, strlen($userId));
-        $stmt->bindParam(3, $file, PDO::PARAM_LOB);
-        if ($stmt->execute()) {
-            $this->response->write($this->getImageUrl($hash));
-        } else {
-            $this->halt(500, "Failed to upload " . json_encode($stmt->errorInfo()));
-        }
-    }
-
-    private function getRootDir()
-    {
-        return isset($this->rootDir) ?
-            $this->rootDir :
-            $this->rootDir = realpath(dirname(__FILE__) . '/..');
-    }
-
-    public function getConfigFile()
-    {
-        $configFile = "{$this->getRootDir()}/config/{$this->getMode()}.php";
-        return file_exists($configFile) ? $configFile : NULL;
-    }
-
-    private function getRecordByHash($hash)
-    {
-        $stmt = $this['db']->prepare(
-            'SELECT hash, body, created_at, updated_at FROM pictures WHERE hash = ?'
-        );
-        $stmt->bindParam(1, $hash);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    private function getImageUrl($hash)
-    {
-        $env = $this->environment;
-        $scheme = isset($env['HTTPS']) && $env['HTTPS'] === 'on' ? 'https' : 'http';
-        $host = $env['SERVER_NAME'];
-        return "{$scheme}://{$host}/{$hash}";
-    }
-}
-
-$app = new GyazoApp;
-
-$app->get('/:hash.png', array($app, 'picture'));
-$app->get('/:hash', array($app, 'picturePage'));
-$app->post('/upload.cgi', array($app, 'upload'));
-
+$app = new PhpGyazo_Application;
 $app->run();
