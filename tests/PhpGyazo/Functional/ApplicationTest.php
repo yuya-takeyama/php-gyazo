@@ -62,6 +62,36 @@ class PhpGyazo_Tests_Functional_ApplicationTest extends Sumile_WebTestCase
     /**
      * @test
      */
+    public function upload_without_user_id_is_not_ok()
+    {
+        $res = $this->post('/upload.cgi', array(
+            'files' => array(
+                'imagedata' => self::FIXTURE_FILE,
+            ),
+        ));
+
+        $this->assertFalse($res->isOk());
+        $this->assertContains('Failed to upload', $res->body());
+    }
+
+    /**
+     * @test
+     */
+    public function upload_without_file_is_not_ok()
+    {
+        $res = $this->post('/upload.cgi', array(
+            'post' => array(
+                'user_id' => 'test_user',
+            ),
+        ));
+
+        $this->assertFalse($res->isOk());
+        $this->assertEquals('Failed to upload: No image file is attached', $res->body());
+    }
+
+    /**
+     * @test
+     */
     public function invalid_page_should_be_not_found()
     {
         $res = $this->get('/invalid_page');

@@ -89,7 +89,12 @@ class PhpGyazo_Application extends Sumile_Application
 
     public function upload()
     {
-        $tmpfile = $_FILES['imagedata']['tmp_name'];
+        if (isset($_FILES['imagedata']) && isset($_FILES['imagedata']['tmp_name'])) {
+            $tmpfile = $_FILES['imagedata']['tmp_name'];
+        } else {
+            $this->halt(400, "Failed to upload: No image file is attached");
+        }
+
         $file = fopen($tmpfile, 'r');
         $hash = md5_file($tmpfile);
         $userId = $this->request()->post('id');
