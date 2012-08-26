@@ -8,5 +8,6 @@ php:
 before_script:
   - ./bin/install.sh
   -  mysql -e 'CREATE DATABASE php_gyazo_test;'
+  - cp ./config/example.php ./config/development.php
 
 script: phpunit --coverage-text
