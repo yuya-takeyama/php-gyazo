@@ -7,7 +7,6 @@ php:
 
 before_script:
   - ./bin/install.sh
-  -  mysql -e 'create database php_gyazo_test;'
-  - mysql < sql/pictures.sql
+  -  mysql -e 'CREATE DATABASE php_gyazo_test;'
 
 script: phpunit --coverage-text

@@ -1,6 +1,23 @@
 <?php
 class PhpGyazo_Tests_Functional_ApplicationTest extends Sumile_WebTestCase
 {
+    private $db;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->db = new PDO('mysql:host=localhost', 'root');
+
+        $this->db->exec('DROP TABLE IF EXISTS pictures');
+        $this->db->exec(file_get_contents('sql/pictures.sql'));
+    }
+
+    public function tearDown()
+    {
+        parent::tearDown();
+    }
+
     /**
      * @test
      */
