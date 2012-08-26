@@ -1,5 +1,6 @@
 <?php
 require_once 'Sumile/Application.php';
+require_once 'PhpGyazo/Provider/PdoServiceProvider.php';
 
 class PhpGyazo_Application extends Sumile_Application
 {
@@ -32,20 +33,21 @@ class PhpGyazo_Application extends Sumile_Application
     {
         $this->configureMode('production', array($this, 'configureProduction'));
         $this->configureMode('development', array($this, 'configureDevelopment'));
+
         $configFile = $this->getConfigFile();
+
         if ($configFile) {
             $this->config(require $configFile);
         } else {
             throw new RuntimeException("Config file for {$this->getMode()} mode is not found");
         }
-        $this['db'] = new PDO(
-            "mysql:dbname={$this->config('db.database')};host={$this->config('db.host')}",
-            $this->config('db.user'),
-            $this->config('db.password'),
-            array(
-                PDO::MYSQL_ATTR_DIRECT_QUERY => true,
-            )
-        );
+
+        $this->register(new PhpGyazo_Provider_PdoServiceProvider, array(
+            'db.host'     => $this->config('db.host'),
+            'db.user'     => $this->config('db.user'),
+            'db.password' => $this->config('db.password'),
+            'db.database' => $this->config('db.database'),
+        ));
     }
 
     public function configureProduction()
