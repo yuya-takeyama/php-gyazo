@@ -51,11 +51,13 @@ class PhpGyazo_Tests_Functional_ApplicationTest extends Sumile_WebTestCase
         $res = $this->get('/' . self::FIXTURE_FILE_MD5);
 
         $this->assertTrue($res->isOk());
+        $this->assertEquals('text/html', $res->header('Content-Type'));
         $this->assertContains('<img src="/' . self::FIXTURE_FILE_MD5 . '.png" alt="Picture" />', $res->body());
 
         $res = $this->get('/' . self::FIXTURE_FILE_MD5 . '.png');
 
         $this->assertTrue($res->isOk());
+        $this->assertEquals('image/png', $res->header('Content-Type'));
         $this->assertEquals(file_get_contents(self::FIXTURE_FILE), $res->body());
     }
 
