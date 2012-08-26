@@ -1,0 +1,13 @@
+language: php
+
+php:
+  - 5.2
+  - 5.3
+  - 5.4
+
+before_script:
+  - ./bin/install.sh
+  -  mysql -e 'CREATE DATABASE php_gyazo_test;'
+  - cp ./tests/config/travis_config.php ./config/test.php
+
+script: phpunit --coverage-text

@@ -13,7 +13,7 @@ set_include_path(
     get_include_path()
 );
 
-require_once 'PhpGyazo/Application.php';
+$_ENV['SLIM_MODE'] = 'test';
 
-$app = new PhpGyazo_Application;
-$app->run();
+require_once 'PhpGyazo/Application.php';
+require_once 'Sumile/WebTestCase.php';

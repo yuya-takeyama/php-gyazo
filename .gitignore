@@ -1,5 +1,7 @@
 /.bundle
+/.venom
 /config/*
 !/config/example.php
-/vendor/bundle
+/vendor
+/venom.php
 /tmp
