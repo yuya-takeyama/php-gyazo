@@ -55,7 +55,7 @@ class PhpGyazo_Tests_Functional_ApplicationTest extends Sumile_WebTestCase
         $app['db.host']     = 'localhost';
         $app['db.user']     = 'root';
         $app['db.password'] = '';
-        $app['db.database'] = 'php_gyazo_dev';
+        $app['db.database'] = 'php_gyazo_test';
 
         return $app;
     }
